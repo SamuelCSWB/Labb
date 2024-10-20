@@ -1,0 +1,70 @@
+﻿@page "/newuser"
+@rendermode InteractiveServer
+
+@if(!isFormSubmitted)
+{
+    <EditForm Model="@user" OnValidSubmit="HandleValidSubmit">
+        <div>
+            <label for="Id">ID:</label>
+            <InputNumber id="Id" @bind-Value="user.Id"/>
+        </div>
+        <br/>
+        <div>
+            <label for="name">Namn:</label>
+            <InputText id="name" @bind-Value="user.Name"/>
+        </div>
+        <br/>
+        <div>
+            <label for="email">Email:</label>
+            <InputText id="email" @bind-Value="user.Email"/>
+        </div>
+        <br />
+        <div>
+            <label for="street">Gata:</label>
+            <InputText id="street" @bind-Value="user.Address.Street"/>
+        </div>
+        <br />
+        <div>
+            <label for="city">Stad:</label>
+            <InputText id="city" @bind-Value="user.Address.City"/>
+        </div>
+        <br />
+        <div>
+            <label for="zip">Postnr:</label>
+            <InputNumber id="zip" @bind-Value="user.Address.Zip"/>
+        </div>
+        <br />
+        <div>
+            <label for="coName">Företag:</label>
+            <InputText id="coName" @bind-Value="user.Company.Name"/>
+        </div>
+        <br />
+        <div>
+            <label for="catchPhrase">Slogan:</label>
+            <InputText id="catchPhrase" @bind-Value="user.Company.CatchPhrase" />
+        </div>
+        <br />
+        <button type="submit">Submit</button>
+    </EditForm>
+}
+else
+{
+    <p><b>ID: </b>@user.Id</p>
+    <p><b>Namn: </b>@user.Name</p>
+    <p><b>Email: </b>@user.Email</p>
+    <p><b>Gata: </b>@user.Address.Street</p>
+    <p><b>Stad: </b>@user.Address.City</p>
+    <p><b>Postnr:  </b>@user.Address.Zip</p>
+    <p><b>Företag: </b>@user.Company.Name</p>
+    <p><b>Slogan: </b>@user.Company.CatchPhrase</p>
+}
+
+@code {
+    private User user = new User();
+    private bool isFormSubmitted = false;
+
+    private void HandleValidSubmit()
+    {
+        isFormSubmitted = true;
+    }
+}

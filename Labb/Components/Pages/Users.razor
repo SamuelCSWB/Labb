@@ -1,0 +1,36 @@
+﻿@* @page "/users"
+
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Namn</th>
+            <th>Email</th>
+            <th>Gata</th>
+            <th>Stad</th>
+            <th>Postnummer</th>
+            <th>Företag</th>
+            <th>Slogan</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ()
+        {
+            <tr>
+                <td>@user.Id</td>
+                <td>@user.Name</td>
+                <td>@user.Email</td>
+                <td>@user.Address.Street</td>
+                <td>@user.Address.City</td>
+                <td>@user.Address.Zip</td>
+                <td>@user.Company.Name</td>
+                <td>@user.Company.CatchPhrase</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+ *@
+}
