@@ -1,8 +1,21 @@
-﻿@* @page "/users"
+﻿@page "/users"
+@rendermode InteractiveServer
 
 
-<table>
-    <thead>
+
+
+@if (_users == null)
+{
+    <p><em>Loading..</em></p>
+}
+else
+{
+
+    <button @onclick="ToggleDataSource">@(_useApi ? "Visa lokala användare" : "Visa API-användare")</button>
+    <button @onclick="ToggleSortOrder">@(_isAscending ? "Sortera Namn \u2191" : "Sortera Namn  \u2193")</button>
+    <button @onclick="ToggleSortOrderById">@(_isAscendingId ? "Sortera ID \u2191" : "Sortera ID \u2193")</button>
+    <table>
+        <thead>
         <tr>
             <th>ID</th>
             <th>Namn</th>
@@ -13,9 +26,9 @@
             <th>Företag</th>
             <th>Slogan</th>
         </tr>
-    </thead>
-    <tbody>
-        @foreach ()
+        </thead>
+        <tbody>
+        @foreach (var user in _users)
         {
             <tr>
                 <td>@user.Id</td>
@@ -23,14 +36,166 @@
                 <td>@user.Email</td>
                 <td>@user.Address.Street</td>
                 <td>@user.Address.City</td>
-                <td>@user.Address.Zip</td>
+                <td>@user.Address.Zipcode</td>
                 <td>@user.Company.Name</td>
                 <td>@user.Company.CatchPhrase</td>
             </tr>
         }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+
+    <p @onclick="ToggleShowUsers" style="cursor:pointer;"><b>@(_showAll ? "visa färre" : "visa alla")</b></p>
+
+}
+
+
+
+
 
 @code {
- *@
+    private List<User>? _users;
+
+    private readonly UserDataAccess _dataAccess = new UserDataAccess();
+    private readonly UserDataImporter _dataImporter = new UserDataImporter();
+
+    private bool _useApi = false;
+    private bool _showAll = false;
+    private bool _isAscending = true;
+    private bool _isAscendingId = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Task.Delay(1000);
+            await LoadSomeUsers();
+        }
+    }
+
+    private async Task LoadSomeUsers()
+    {
+
+        if (_useApi)
+        {
+            _users = (await _dataImporter.GetUsers()).OrderBy(users => users.Name).Take(5).ToList();
+
+        }
+        else
+        {
+            _users = (await _dataAccess.GetUsers()).OrderBy(users => users.Name).Take(5).ToList();
+
+        }
+        StateHasChanged();
+    } 
+
+
+    private async Task LoadAllUsers()
+    {
+        if (_useApi)
+        {
+            _users = (await _dataImporter.GetUsers()).OrderBy(users => users.Name).ToList();
+        }
+        else
+        {
+            _users = (await _dataAccess.GetUsers()).OrderBy(users => users.Name).ToList();
+        }
+    }
+
+
+
+
+    private void SortByName()
+    {
+        if (_isAscending)
+        {
+            if (_showAll)
+            {
+                _users = _users.OrderBy(users => users.Name).ToList();
+            }
+
+            else
+            {
+                _users = _users.OrderBy(users => users.Name).Take(5).ToList();
+            }
+
+        }
+        else
+        {
+            if (_showAll)
+            {
+                _users = _users.OrderByDescending(user => user.Name).Take(5).ToList();
+            }
+
+            else
+            {
+                _users = _users.OrderByDescending(user => user.Name).ToList();
+            }
+
+        }
+        StateHasChanged();
+    }
+
+    private void SortById()
+    {
+        if (_isAscendingId)
+        {
+            if (_showAll)
+            {
+                _users = _users.OrderBy(user => user.Id).ToList();
+            }
+
+            else
+            {
+                _users = _users.OrderBy(user => user.Id).Take(5).ToList();
+            }
+
+        }
+        else
+        {
+            if (_showAll)
+            {
+                _users = _users.OrderByDescending(user => user.Id).ToList();
+            }
+
+            else
+            {
+                _users = _users.OrderByDescending(user => user.Id).Take(5).ToList();
+            }
+
+        }
+        StateHasChanged();
+    }
+
+    private async Task ToggleDataSource()
+    {
+        _useApi = !_useApi;
+        await LoadSomeUsers();
+    }
+
+    private void ToggleSortOrder()
+    {
+        _isAscending = !_isAscending;
+        SortByName();
+
+    }
+    private void ToggleSortOrderById()
+    {
+        _isAscendingId = !_isAscendingId; 
+        SortById();
+    }
+
+    private async Task ToggleShowUsers()
+    {
+        _showAll = !_showAll;
+        if (_showAll)
+        {
+            await LoadAllUsers();
+        }
+        else
+        {
+            await LoadSomeUsers();
+        }
+    }
+
+
 }

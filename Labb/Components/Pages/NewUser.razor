@@ -31,7 +31,7 @@
         <br />
         <div>
             <label for="zip">Postnr:</label>
-            <InputNumber id="zip" @bind-Value="user.Address.Zip"/>
+            <InputText id="zip" @bind-Value="user.Address.Zipcode"/>
         </div>
         <br />
         <div>
@@ -54,7 +54,7 @@ else
     <p><b>Email: </b>@user.Email</p>
     <p><b>Gata: </b>@user.Address.Street</p>
     <p><b>Stad: </b>@user.Address.City</p>
-    <p><b>Postnr:  </b>@user.Address.Zip</p>
+    <p><b>Postnr:  </b>@user.Address.Zipcode</p>
     <p><b>Företag: </b>@user.Company.Name</p>
     <p><b>Slogan: </b>@user.Company.CatchPhrase</p>
 }
