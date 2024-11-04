@@ -13,7 +13,9 @@ else
 
     <button @onclick="ToggleDataSource">@(_useApi ? "Visa lokala användare" : "Visa API-användare")</button>
     <button @onclick="ToggleSortOrder">@(_isAscending ? "Sortera Namn \u2191" : "Sortera Namn  \u2193")</button>
-    <button @onclick="ToggleSortOrderById">@(_isAscendingId ? "Sortera ID \u2191" : "Sortera ID \u2193")</button>
+    <button @onclick="ToggleSortOrderById">@(_isAscending ? "Sortera ID \u2191" : "Sortera ID \u2193")</button>
+    <InputText @bind-Value="_searchInput"></InputText>
+    <button @onclick="LoadAndSortUsers">Sök</button>
     <table>
         <thead>
         <tr>
@@ -44,7 +46,7 @@ else
         </tbody>
     </table>
 
-    <p @onclick="ToggleShowUsers" style="cursor:pointer;"><b>@(_showAll ? "visa alla" : "visa färre")</b></p>
+    <p @onclick="ToggleShowUsers" style="cursor:pointer;"><b>@(_showAll ? "visa färre" : "visa alla")</b></p>
 
 }
 
@@ -53,160 +55,144 @@ else
 
 
 @code {
+
     private List<User>? _users;
+
 
     private readonly UserDataAccess _dataAccess = new UserDataAccess();
     private readonly UserDataImporter _dataImporter = new UserDataImporter();
 
     private bool _useApi = false;
-    private bool _showAll = true;
+    private bool _showAll = false;
     private bool _isAscending = true;
-    private bool _isAscendingId = true;
+    private SortedBy _sortedBy = SortedBy.Name;
+
+    private string _searchInput = string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             await Task.Delay(1000);
-            await LoadSomeUsers();
+            await LoadAndSortUsers();
         }
     }
 
-    private async Task LoadSomeUsers()
+    private async Task GetData()
     {
-
         if (_useApi)
         {
-            _users = (await _dataImporter.GetUsers()).OrderBy(users => users.Name).Take(5).ToList();
+            _users = (await _dataImporter.GetUsers()).ToList();
 
         }
         else
         {
-            _users = (await _dataAccess.GetUsers()).OrderBy(users => users.Name).Take(5).ToList();
+            _users = (await _dataAccess.GetUsers()).ToList();
 
         }
 
+    }
+
+    private async Task LoadAndSortUsers()
+    {
+
+        await GetData();
+
+        if (!string.IsNullOrEmpty(_searchInput))
+        {
+            _users = _users?.Where(user => user.Name.Contains(_searchInput, StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+        }
+
+        if (_sortedBy == SortedBy.Name)
+        {
+            if(_isAscending)
+            {
+                SortByName();
+            }
+            else
+            {
+                SortByNameDescending();
+            }
+        }
+        else if(_sortedBy == SortedBy.Id)
+        {
+            if (_isAscending)
+            {
+                SortById();
+            }
+            else
+            {
+                SortByIdDescending();
+            }
+        }
+        if(!_showAll && _users != null)
+        {
+            _users = _users.Take(5).ToList();
+        }
         StateHasChanged();
     }
 
 
-    private async Task LoadAllUsers()
+
+    private void SortByName()
     {
-        if (_useApi)
-        {
-            _users = (await _dataImporter.GetUsers()).OrderBy(users => users.Name).ToList();
-        }
-        else
-        {
-            _users = (await _dataAccess.GetUsers()).OrderBy(users => users.Name).ToList();
-        }
+       
+
+        _users = _users?.OrderBy(users => users.Name).ToList();
+        
+
     }
 
-
-
-
-    private async Task SortByName()
+    private void SortByNameDescending()
     {
-        if (_useApi)
-        {
-            _users = (await _dataImporter.GetUsers()).OrderBy(users => users.Name).Take(5).ToList();
+     
+        _users = _users?.OrderByDescending(users => users.Name).ToList();
 
-        }
-        else
-        {
-            _users = (await _dataAccess.GetUsers()).OrderBy(users => users.Name).Take(5).ToList();
-
-        }
     }
 
-    private async Task SortByNameDescending()
+    private void SortById()
     {
-
-        if (_useApi)
-        {
-            _users = (await _dataImporter.GetUsers()).OrderByDescending(users => users.Name).Take(5).ToList();
-
-        }
-        else
-        {
-            _users = (await _dataAccess.GetUsers()).OrderByDescending(users => users.Name).Take(5).ToList();
-
-        }
+      
+        _users = _users?.OrderBy(users => users.Id).ToList();
     }
 
-    private async Task SortById()
+    private void SortByIdDescending()
     {
-        if (_useApi)
-        {
-            _users = (await _dataImporter.GetUsers()).OrderBy(users => users.Id).Take(5).ToList();
-
-        }
-        else
-        {
-            _users = (await _dataAccess.GetUsers()).OrderBy(users => users.Id).Take(5).ToList();
-
-        }
-    }
-
-    private async Task SortByIdDescending()
-    {
-        if (_useApi)
-        {
-            _users = (await _dataImporter.GetUsers()).OrderByDescending(users => users.Id).Take(5).ToList();
-
-        }
-        else
-        {
-            _users = (await _dataAccess.GetUsers()).OrderByDescending(users => users.Id).Take(5).ToList();
-
-        }
+      
+        _users = _users?.OrderByDescending(users => users.Id).ToList();
     }
 
     private async Task ToggleDataSource()
     {
         _useApi = !_useApi;
-        await LoadSomeUsers();
+        await LoadAndSortUsers();
     }
 
     private async Task ToggleSortOrder()
     {
+
+        _sortedBy = SortedBy.Name;
         _isAscending = !_isAscending;
-        if (_isAscending)
-        {
-            await SortByName();
-        }
-        else
-        {
-            await SortByNameDescending();
-        }
+        await LoadAndSortUsers();
 
     }
 
     private async Task ToggleSortOrderById()
     {
-        _isAscendingId = !_isAscendingId;
-        if (_isAscendingId)
-        {
-            await SortById();
-        }
-        else
-        {
-            await SortByIdDescending();
-        }
+        _sortedBy = SortedBy.Id;
+        _isAscending = !_isAscending;
+
+       await LoadAndSortUsers();
 
     }
 
     private async Task ToggleShowUsers()
     {
         _showAll = !_showAll;
-        if (_showAll)
-        {
-            await LoadSomeUsers();
-        }
-        else
-        {
-            await LoadAllUsers();
-        }
+
+        await LoadAndSortUsers();
+        
     }
 
 }
