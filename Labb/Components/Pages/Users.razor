@@ -12,7 +12,7 @@ else
 {
 
     <button @onclick="ToggleDataSource">@(_useApi ? "Visa lokala användare" : "Visa API-användare")</button>
-    <button @onclick="ToggleSortOrder">@(_isAscending ? "Sortera Namn \u2191" : "Sortera Namn  \u2193")</button>
+    <button @onclick="ToggleSortOrderByName">@(_isAscending ? "Sortera Namn \u2191" : "Sortera Namn  \u2193")</button>
     <button @onclick="ToggleSortOrderById">@(_isAscending ? "Sortera ID \u2191" : "Sortera ID \u2193")</button>
     <InputText @bind-Value="_searchInput"></InputText>
     <button @onclick="LoadAndSortUsers">Sök</button>
@@ -106,25 +106,12 @@ else
 
         if (_sortedBy == SortedBy.Name)
         {
-            if(_isAscending)
-            {
-                SortByName();
-            }
-            else
-            {
-                SortByNameDescending();
-            }
+
+            SortByName();
         }
         else if(_sortedBy == SortedBy.Id)
         {
-            if (_isAscending)
-            {
-                SortById();
-            }
-            else
-            {
-                SortByIdDescending();
-            }
+            SortById();
         }
         if(!_showAll && _users != null)
         {
@@ -138,42 +125,49 @@ else
     private void SortByName()
     {
        
-
-        _users = _users?.OrderBy(users => users.Name).ToList();
+        if(_isAscending)
+        {
+            _users = _users?.OrderBy(users => users.Name).ToList();
+        }
+        else
+        {
+            _users = _users?.OrderByDescending(users => users.Name).ToList();
+        }
+        
         
 
     }
 
-    private void SortByNameDescending()
-    {
-     
-        _users = _users?.OrderByDescending(users => users.Name).ToList();
 
-    }
 
     private void SortById()
     {
-      
-        _users = _users?.OrderBy(users => users.Id).ToList();
+
+        if (_isAscending)
+        {
+            _users = _users?.OrderBy(users => users.Id).ToList();
+        }
+        else
+        {
+            _users = _users?.OrderByDescending(users => users.Id).ToList();
+        }
+        
     }
 
-    private void SortByIdDescending()
-    {
-      
-        _users = _users?.OrderByDescending(users => users.Id).ToList();
-    }
 
     private async Task ToggleDataSource()
     {
         _useApi = !_useApi;
+
         await LoadAndSortUsers();
     }
 
-    private async Task ToggleSortOrder()
+    private async Task ToggleSortOrderByName()
     {
 
         _sortedBy = SortedBy.Name;
         _isAscending = !_isAscending;
+
         await LoadAndSortUsers();
 
     }
