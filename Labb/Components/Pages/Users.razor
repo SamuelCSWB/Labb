@@ -15,7 +15,7 @@ else
     <button @onclick="ToggleSortOrderByName">@(_isAscending ? "Sortera Namn \u2191" : "Sortera Namn  \u2193")</button>
     <button @onclick="ToggleSortOrderById">@(_isAscending ? "Sortera ID \u2191" : "Sortera ID \u2193")</button>
     <InputText @bind-Value="_searchInput"></InputText>
-    <button @onclick="LoadAndSortUsers">Sök</button>
+    <button @onclick="LoadAndDisplayUsers">Sök</button>
     <table>
         <thead>
         <tr>
@@ -74,7 +74,7 @@ else
         if (firstRender)
         {
             await Task.Delay(1000);
-            await LoadAndSortUsers();
+            await LoadAndDisplayUsers();
         }
     }
 
@@ -93,33 +93,18 @@ else
 
     }
 
-    private async Task LoadAndSortUsers()
+    private async Task LoadAndDisplayUsers()
     {
 
         await GetData();
-
-        if (!string.IsNullOrEmpty(_searchInput))
-        {
-            _users = _users?.Where(user => user.Name.Contains(_searchInput, StringComparison.CurrentCultureIgnoreCase)).ToList();
-
-        }
-
-        if (_sortedBy == SortedBy.Name)
-        {
-
-            SortByName();
-        }
-        else if(_sortedBy == SortedBy.Id)
-        {
-            SortById();
-        }
-        if(!_showAll && _users != null)
-        {
-            _users = _users.Take(5).ToList();
-        }
+        SortUsers();
+        FilteredUsers();
+        LimitUsers();
+ 
         StateHasChanged();
-    }
 
+
+    }
 
 
     private void SortByName()
@@ -133,8 +118,6 @@ else
         {
             _users = _users?.OrderByDescending(users => users.Name).ToList();
         }
-        
-        
 
     }
 
@@ -154,12 +137,41 @@ else
         
     }
 
+    private void SortUsers()
+    {
+        if (_sortedBy == SortedBy.Name)
+        {
+
+            SortByName();
+        }
+        else if(_sortedBy == SortedBy.Id)
+        {
+            SortById();
+        }
+    }
+
+    private void FilteredUsers()
+    {
+        if (!string.IsNullOrEmpty(_searchInput))
+        {
+            _users = _users?.Where(user => user.Name.Contains(_searchInput, StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+        }
+    }
+
+    private void LimitUsers()
+    {
+        if (!_showAll && _users != null)
+        {
+            _users = _users.Take(5).ToList();
+        }
+    }
 
     private async Task ToggleDataSource()
     {
         _useApi = !_useApi;
 
-        await LoadAndSortUsers();
+        await LoadAndDisplayUsers();
     }
 
     private async Task ToggleSortOrderByName()
@@ -168,7 +180,7 @@ else
         _sortedBy = SortedBy.Name;
         _isAscending = !_isAscending;
 
-        await LoadAndSortUsers();
+        await LoadAndDisplayUsers();
 
     }
 
@@ -177,7 +189,7 @@ else
         _sortedBy = SortedBy.Id;
         _isAscending = !_isAscending;
 
-       await LoadAndSortUsers();
+       await LoadAndDisplayUsers();
 
     }
 
@@ -185,7 +197,7 @@ else
     {
         _showAll = !_showAll;
 
-        await LoadAndSortUsers();
+        await LoadAndDisplayUsers();
         
     }
 
