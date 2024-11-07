@@ -16,7 +16,7 @@ else
     <button @onclick="ToggleSortOrderById">@(_isAscending ? "Sortera ID \u2191" : "Sortera ID \u2193")</button>
     <InputText @bind-Value="_searchInput"></InputText>
     <button @onclick="LoadAndDisplayUsers">Sök</button>
-    <table>
+    <table class="table">
         <thead>
         <tr>
             <th>ID</th>
