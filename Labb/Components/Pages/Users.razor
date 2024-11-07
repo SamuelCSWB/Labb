@@ -56,7 +56,7 @@ else
 
 @code {
 
-    private List<User>? _users;
+    private IEnumerable<User>? _users;
 
 
     private readonly UserDataAccess _dataAccess = new UserDataAccess();
@@ -82,12 +82,12 @@ else
     {
         if (_useApi)
         {
-            _users = (await _dataImporter.GetUsers()).ToList();
+            _users = (await _dataImporter.GetUsers());
 
         }
         else
         {
-            _users = (await _dataAccess.GetUsers()).ToList();
+            _users = (await _dataAccess.GetUsers());
 
         }
 
@@ -98,7 +98,7 @@ else
 
         await GetData();
         SortUsers();
-        FilteredUsers();
+        FilterUsers();
         LimitUsers();
  
         StateHasChanged();
@@ -107,54 +107,38 @@ else
     }
 
 
-    private void SortByName()
-    {
-       
-        if(_isAscending)
-        {
-            _users = _users?.OrderBy(users => users.Name).ToList();
-        }
-        else
-        {
-            _users = _users?.OrderByDescending(users => users.Name).ToList();
-        }
-
-    }
-
-
-
-    private void SortById()
-    {
-
-        if (_isAscending)
-        {
-            _users = _users?.OrderBy(users => users.Id).ToList();
-        }
-        else
-        {
-            _users = _users?.OrderByDescending(users => users.Id).ToList();
-        }
-        
-    }
-
     private void SortUsers()
     {
         if (_sortedBy == SortedBy.Name)
         {
 
-            SortByName();
+            if(_isAscending)
+            {
+                _users = _users?.OrderBy(users => users.Name);
+            }
+            else
+            {
+                _users = _users?.OrderByDescending(users => users.Name);
+            }
         }
         else if(_sortedBy == SortedBy.Id)
         {
-            SortById();
+            if (_isAscending)
+            {
+                _users = _users?.OrderBy(users => users.Id);
+            }
+            else
+            {
+                _users = _users?.OrderByDescending(users => users.Id);
+            }
         }
     }
 
-    private void FilteredUsers()
+    private void FilterUsers()
     {
         if (!string.IsNullOrEmpty(_searchInput))
         {
-            _users = _users?.Where(user => user.Name.Contains(_searchInput, StringComparison.CurrentCultureIgnoreCase)).ToList();
+            _users = _users?.Where(user => user.Name.Contains(_searchInput, StringComparison.CurrentCultureIgnoreCase));
 
         }
     }
@@ -163,7 +147,7 @@ else
     {
         if (!_showAll && _users != null)
         {
-            _users = _users.Take(5).ToList();
+            _users = _users.Take(5);
         }
     }
 
