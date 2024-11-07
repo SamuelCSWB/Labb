@@ -107,45 +107,30 @@ else
     }
 
 
-    private void SortByName()
-    {
-       
-        if(_isAscending)
-        {
-            _users = _users?.OrderBy(users => users.Name);
-        }
-        else
-        {
-            _users = _users?.OrderByDescending(users => users.Name);
-        }
-
-    }
-
-
-
-    private void SortById()
-    {
-
-        if (_isAscending)
-        {
-            _users = _users?.OrderBy(users => users.Id);
-        }
-        else
-        {
-            _users = _users?.OrderByDescending(users => users.Id);
-        }
-        
-    }
-
     private void SortUsers()
     {
         if (_sortedBy == SortedBy.Name)
         {
-            SortByName();
+
+            if(_isAscending)
+            {
+                _users = _users?.OrderBy(users => users.Name);
+            }
+            else
+            {
+                _users = _users?.OrderByDescending(users => users.Name);
+            }
         }
         else if(_sortedBy == SortedBy.Id)
         {
-            SortById();
+            if (_isAscending)
+            {
+                _users = _users?.OrderBy(users => users.Id);
+            }
+            else
+            {
+                _users = _users?.OrderByDescending(users => users.Id);
+            }
         }
     }
 
