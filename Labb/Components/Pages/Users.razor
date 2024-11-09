@@ -12,8 +12,8 @@ else
 {
 
     <button @onclick="ToggleDataSource">@(_useApi ? "Visa lokala användare" : "Visa API-användare")</button>
-    <button @onclick="ToggleSortOrderByName">@(_isAscending ? "Sortera Namn \u2191" : "Sortera Namn  \u2193")</button>
-    <button @onclick="ToggleSortOrderById">@(_isAscending ? "Sortera ID \u2191" : "Sortera ID \u2193")</button>
+    <button @onclick="() => ToggleSortOrder(SortedBy.Name)">@(_isAscending ? "Sortera Namn \u2191" : "Sortera Namn  \u2193")</button>
+    <button @onclick=" () => ToggleSortOrder(SortedBy.Id)">@(_isAscending ? "Sortera ID \u2191" : "Sortera ID \u2193")</button>
     <InputText @bind-Value="_searchInput"></InputText>
     <button @onclick="LoadAndDisplayUsers">Sök</button>
     <table class="table">
@@ -158,24 +158,29 @@ else
         await LoadAndDisplayUsers();
     }
 
-    private async Task ToggleSortOrderByName()
+    private async Task ToggleSortOrder(SortedBy sortedBy)
     {
-
-        _sortedBy = SortedBy.Name;
         _isAscending = !_isAscending;
+    
+        
+            _sortedBy = sortedBy;
+        
+
+
+        
 
         await LoadAndDisplayUsers();
 
     }
 
-    private async Task ToggleSortOrderById()
-    {
-        _sortedBy = SortedBy.Id;
-        _isAscending = !_isAscending;
+    // private async Task ToggleSortOrderById()
+    // {
+    //     _sortedBy = SortedBy.Id;
+    //     _isAscending = !_isAscending;
 
-       await LoadAndDisplayUsers();
+    //    await LoadAndDisplayUsers();
 
-    }
+    // }
 
     private async Task ToggleShowUsers()
     {
